@@ -1,0 +1,13 @@
+#####
+# Kubeadm init
+#
+kubeadm init --pod-network-cidr=${pod_cidr} --token=${token}
+mkdir -p /root/.kube
+sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
+sudo chown $(id -u):$(id -g) /root/.kube/config
+
+#####
+# cni
+#
+
+kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/${v_flannel}/Documentation/kube-flannel.yml

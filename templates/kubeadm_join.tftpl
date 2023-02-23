@@ -1,0 +1,14 @@
+#####
+# Kubeadm join
+#
+cat > /tmp/kubeadm-join-config.yaml <<EOF
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    token: ${token}
+    unsafeSkipCAVerification: true
+    apiServerEndpoint: "${control_plane_url}"
+EOF
+
+kubeadm join --config=/tmp/kubeadm-join-config.yaml

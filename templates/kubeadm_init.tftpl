@@ -6,8 +6,15 @@ mkdir -p /root/.kube
 sudo cp -i /etc/kubernetes/admin.conf /root/.kube/config
 sudo chown $(id -u):$(id -g) /root/.kube/config
 
+# https://stackoverflow.com/questions/68226288/kubectl-wait-not-working-for-creation-of-resources
+for i in $(seq 1 60)
+do
+  kubectl -n kube-system wait all -l component=kube-apiserver --for condition=Ready
+  test $? -eq 0 && break
+  sleep 1
+done
+
 #####
 # cni
 #
-
 kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/${v_flannel}/Documentation/kube-flannel.yml

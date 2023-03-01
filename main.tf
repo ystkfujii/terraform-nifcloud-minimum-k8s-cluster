@@ -94,7 +94,6 @@ resource "nifcloud_private_lan" "this" {
 #####
 # Module
 #
-
 module "control_plane" {
   source  = "ystkfujii/instance/nifcloud"
   version = "0.0.4"
@@ -142,6 +141,7 @@ module "worker" {
   depends_on = [
     nifcloud_security_group.wk,
     nifcloud_private_lan.this,
+    # Wait for kubectl init
     module.control_plane,
   ]
 }

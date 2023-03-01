@@ -1,5 +1,6 @@
 # DNS
 sed -i -e 's/^DNS=127.0.0.1$/DNS=8.8.8.8/' /etc/systemd/resolved.conf
+systemctl restart systemd-resolved.service
 
 #####
 # Forwarding IPv4 and letting iptables see bridged traffic

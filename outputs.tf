@@ -17,7 +17,7 @@ output "worker_info" {
 
 output "control_plane_info" {
   description = "The control plane infomation in cluster"
-  value = { "${module.control_plane.instance_id}" : {
+  value = { (module.control_plane.instance_id) : {
     unique_id  = module.control_plane.unique_id,
     public_ip  = module.control_plane.public_ip,
     private_ip = module.control_plane.private_ip,

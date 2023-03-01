@@ -8,9 +8,6 @@ locals {
   role_control_plane = "cp"
   role_worker        = "wk"
 
-  instance_count_cp = 1
-  instance_count_wk = var.instance_count_wk
-
   private_network_prefix = 24
   private_network_cidr   = "${var.private_network_subnet}/${local.private_network_prefix}"
 
@@ -20,7 +17,6 @@ locals {
 
   # Port used by the protocol
   port_ssh     = 22
-  port_squid   = 3128
   port_kubectl = 6443
   port_kubelet = 10250
 
@@ -63,7 +59,8 @@ locals {
 }
 
 module "kubeadm_token" {
-  source = "github.com/scholzj/terraform-kubeadm-token"
+  source  = "scholzj/kubeadm-token/random"
+  version = "1.2.0"
 }
 
 #####

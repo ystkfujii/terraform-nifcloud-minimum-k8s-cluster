@@ -28,16 +28,6 @@ variable "instance_key_name" {
   type        = string
 }
 
-variable "k8s_version" {
-  type    = string
-  default = "1.26.1-00"
-}
-
-variable "containerd_version" {
-  type    = string
-  default = "1.6.18"
-}
-
 variable "instance_count_wk" {
   description = "Number of worker to be created"
   type        = number

@@ -6,7 +6,7 @@ This project is for develop environment, so please do not use this in production
 
 ## Overview
 
-![overview.png](./images/overview.png)
+![overview.png](https://raw.githubusercontent.com/ystkfujii/terraform-nifcloud-minimum-k8s-cluster/main/images/overview.png)
 
 ## Usage
 

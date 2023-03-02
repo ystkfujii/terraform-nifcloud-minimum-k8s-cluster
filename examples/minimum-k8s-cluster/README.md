@@ -32,12 +32,12 @@
   ```bash
   CP_IP=$(terraform output -json | jq -r -c '.control_plane_info.value | to_entries[] | .value.public_ip')
   ```
-- SSH接続
+- SSH Keyの設定
   ```bash
-  ssh -i <YOUR KEY PATH> root@${CP_IP}
+  SSH_KEY=<YOUR SSH KEY PATH>
   ```
 - kubectl実行
   ```bash
-  kubectl get node
-  kubectl get pod -A
+  ssh -i ${SSH_KEY} root@${CP_IP} -- kubectl get node
+  ssh -i ${SSH_KEY} root@${CP_IP} -- kubectl get pod -A
   ```

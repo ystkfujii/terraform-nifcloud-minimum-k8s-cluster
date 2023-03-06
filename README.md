@@ -8,6 +8,14 @@ This project is for develop environment, so please do not use this in production
 
 ![overview.png](https://raw.githubusercontent.com/ystkfujii/terraform-nifcloud-minimum-k8s-cluster/main/images/overview.png)
 
+## Requirements
+
+Before this module can be used on a project, you must ensure that the following pre-requisites are fulfilled:
+
+1. Terraform are [installed](#software-dependencies) on the machine where Terraform is executed.
+2. The Nifcloud Account you execute the module with has the right permissions.
+    - You can set environment variable `NIFCLOUD_ACCESS_KEY_ID` and `NIFCLOUD_SECRET_ACCESS_KEY`
+
 ## Usage
 
 There are examples included in the examples folder but simple usage is as follows:
@@ -55,14 +63,6 @@ Then perform the following commands on the root folder:
 | security_group_name | The security group used in the cluster   |
 | worker_info         | The worker information in cluster        |
 | control_plane_info  | The control plane information in cluster |
-
-## Requirements
-
-Before this module can be used on a project, you must ensure that the following pre-requisites are fulfilled:
-
-1. Terraform are [installed](#software-dependencies) on the machine where Terraform is executed.
-2. The Nifcloud Account you execute the module with has the right permissions.
-    - You can set environment variable `NIFCLOUD_ACCESS_KEY_ID` and `NIFCLOUD_SECRET_ACCESS_KEY`
 
 ### Software Dependencies
 

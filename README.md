@@ -20,7 +20,7 @@ provider "nifcloud" {
 
 # Module
 module "minimum_k8s_cluster" {
-  source = "../../"
+  source  = "ystkfujii/minimum-k8s-cluster/nifcloud"
 
   availability_zone = "west-11"
 

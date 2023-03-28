@@ -61,6 +61,7 @@ Then perform the following commands on the root folder:
 | Name                | Description                              |
 | ------------------- | ---------------------------------------- |
 | security_group_name | The security group used in the cluster   |
+| private_network_id  | The private network used in the cluster  |
 | worker_info         | The worker information in cluster        |
 | control_plane_info  | The control plane information in cluster |
 

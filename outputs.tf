@@ -6,6 +6,11 @@ output "security_group_name" {
   }
 }
 
+output "private_network_id" {
+  description = "The private network used in the cluster"
+  value       = nifcloud_private_lan.this.id
+}
+
 output "worker_info" {
   description = "The worker information in cluster"
   value = { for v in module.worker : v.instance_id => {

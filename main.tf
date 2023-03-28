@@ -19,6 +19,7 @@ locals {
   port_ssh     = 22
   port_kubectl = 6443
   port_kubelet = 10250
+  port_flannel = 8472
 
   pod_cidr = "10.244.0.0/16"
 
@@ -191,5 +192,27 @@ resource "nifcloud_security_group_rule" "kubelet_from_control_plane" {
   from_port                  = local.port_kubelet
   to_port                    = local.port_kubelet
   protocol                   = "TCP"
+  source_security_group_name = nifcloud_security_group.cp.group_name
+}
+
+resource "nifcloud_security_group_rule" "flannel_from_worker" {
+  security_group_names = [
+    nifcloud_security_group.cp.group_name
+  ]
+  type                       = "IN"
+  from_port                  = local.port_flannel
+  to_port                    = local.port_flannel
+  protocol                   = "UDP"
+  source_security_group_name = nifcloud_security_group.wk.group_name
+}
+
+resource "nifcloud_security_group_rule" "flannel_from_control_plane" {
+  security_group_names = [
+    nifcloud_security_group.wk.group_name,
+  ]
+  type                       = "IN"
+  from_port                  = local.port_flannel
+  to_port                    = local.port_flannel
+  protocol                   = "UDP"
   source_security_group_name = nifcloud_security_group.cp.group_name
 }

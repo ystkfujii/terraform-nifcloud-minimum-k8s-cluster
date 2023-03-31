@@ -1,0 +1,24 @@
+#####
+# cri-o
+#
+
+# see: https://github.com/cri-o/cri-o/blob/3440dc30cb1770f04889eb182e4d45ae0bc5e10b/install.md#apt-based-operating-systems
+
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/${os_image}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/${v_crio}/${os_image}/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:${v_crio}.list
+
+mkdir -p /usr/share/keyrings
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/${os_image}/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+curl -L https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/${v_crio}/${os_image}/Release.key | gpg --dearmor -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+
+apt-get update
+apt-get install -y cri-o cri-o-runc
+
+systemctl enable crio
+systemctl start crio
+
+# cri-tools
+wget https://github.com/kubernetes-sigs/cri-tools/releases/download/${v_cri_tools}/crictl-${v_cri_tools}-linux-amd64.tar.gz
+tar zxvf crictl-${v_cri_tools}-linux-amd64.tar.gz -C /usr/local/bin
+rm -f crictl-${v_cri_tools}-linux-amd64.tar.gz
+echo 'runtime-endpoint: unix:///run/crio/crio.sock' > /etc/crictl.yaml

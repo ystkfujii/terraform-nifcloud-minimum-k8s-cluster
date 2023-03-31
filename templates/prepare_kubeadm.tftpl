@@ -30,38 +30,6 @@ swapoff -a
 sed -i '/ swap / s/^/#/' /etc/fstab
 
 #####
-# Install containerd
-#
-
-# containerd
-wget https://github.com/containerd/containerd/releases/download/v${v_containerd}/containerd-${v_containerd}-linux-amd64.tar.gz
-tar Cxzvf /usr/local containerd-${v_containerd}-linux-amd64.tar.gz
-mkdir -p /usr/local/lib/systemd/system
-curl https://raw.githubusercontent.com/containerd/containerd/main/containerd.service > /usr/local/lib/systemd/system/containerd.service
-systemctl daemon-reload
-systemctl enable --now containerd
-
-# runc
-wget https://github.com/opencontainers/runc/releases/download/${v_runc}/runc.amd64
-install -m 755 runc.amd64 /usr/local/sbin/runc
-
-# cni
-wget https://github.com/containernetworking/plugins/releases/download/${v_cni_plugins}/cni-plugins-linux-amd64-v1.2.0.tgz
-mkdir -p /opt/cni/bin
-tar Cxzvf /opt/cni/bin cni-plugins-linux-amd64-${v_cni_plugins}.tgz
-
-wget https://github.com/kubernetes-sigs/cri-tools/releases/download/$VERSION/crictl-${v_cri_tools}-linux-amd64.tar.gz
-tar zxvf crictl-${v_cri_tools}-linux-amd64.tar.gz -C /usr/local/bin
-rm -f crictl-${v_cri_tools}-linux-amd64.tar.gz
-echo 'runtime-endpoint: unix:///run/containerd/containerd.sock' > /etc/crictl.yaml
-
-mkdir -p /etc/containerd/
-containerd config default > /etc/containerd/config.toml
-sed -i -e 's/SystemdCgroup = false/SystemdCgroup = true/'  /etc/containerd/config.toml
-
-systemctl restart containerd
-
-#####
 # kubeadm
 #  see: https://kubernetes.io/ja/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 

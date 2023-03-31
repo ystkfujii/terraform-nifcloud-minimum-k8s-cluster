@@ -24,21 +24,40 @@ locals {
   pod_cidr = "10.244.0.0/16"
 
   # Version
-  v_k8s         = "1.26.1-00"
+  v_k8s     = "1.26.1-00"
+  v_flannel = "v0.21.2"
+
+  # cri tools
+  v_cri_tools = "v1.26.0"
+
+  # containerd
   v_containerd  = "1.6.18"
   v_runc        = "v1.1.4"
   v_cni_plugins = "v1.2.0"
-  v_cri_tools   = "v1.26.0"
-  v_flannel     = "v0.21.2"
+
+  # cri-o
+  v_crio   = "1.26"
+  os_image = "xUbuntu_22.04"
 
   # Templatefile
   prepare_kubeadm = templatefile("${path.module}/templates/prepare_kubeadm.tftpl", {
-    v_k8s         = local.v_k8s
+    v_k8s = local.v_k8s
+  })
+
+  # cni
+  install_containerd = templatefile("${path.module}/templates/install_containerd.tftpl", {
     v_containerd  = local.v_containerd
     v_runc        = local.v_runc
     v_cni_plugins = local.v_cni_plugins
     v_cri_tools   = local.v_cri_tools
   })
+  install_crio = templatefile("${path.module}/templates/install_crio.tftpl", {
+    v_crio      = local.v_crio
+    v_cri_tools = local.v_cri_tools
+    os_image    = local.os_image
+  })
+  install_cni = var.cni == "containerd" ? local.install_containerd : local.install_crio
+
   kubeadm_init = templatefile("${path.module}/templates/kubeadm_init.tftpl", {
     token     = module.kubeadm_token.token
     pod_cidr  = local.pod_cidr
@@ -51,10 +70,12 @@ locals {
   })
   extra_userdata_cp = templatefile("${path.module}/templates/extra_userdata.tftpl", {
     prepare_kubeadm = local.prepare_kubeadm
+    install_cni     = local.install_cni
     kubeadm_action  = local.kubeadm_init
   })
   extra_userdata_wk = templatefile("${path.module}/templates/extra_userdata.tftpl", {
     prepare_kubeadm = local.prepare_kubeadm
+    install_cni     = local.install_cni
     kubeadm_action  = local.kubeadm_join
   })
 }

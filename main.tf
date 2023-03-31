@@ -8,12 +8,15 @@ locals {
   role_control_plane = "cp"
   role_worker        = "wk"
 
+  # Private Netrwork
   private_network_prefix = 24
   private_network_cidr   = "${var.private_network_subnet}/${local.private_network_prefix}"
 
   # Nubmer of 4th octet begins
   ip_start_cp = 64
   ip_start_wk = 32
+
+  private_ip_cp = cidrhost(local.private_network_cidr, (local.ip_start_cp + 1))
 
   # Port used by the protocol
   port_ssh     = 22
@@ -23,11 +26,9 @@ locals {
 
   pod_cidr = "10.244.0.0/16"
 
-  # Version
-  v_k8s     = "1.26.1-00"
-  v_flannel = "v0.21.2"
-
-  # cri tools
+  # version
+  v_k8s       = "1.26.1-00"
+  v_flannel   = "v0.21.2"
   v_cri_tools = "v1.26.0"
 
   # containerd
@@ -65,7 +66,7 @@ locals {
   })
   kubeadm_join = templatefile("${path.module}/templates/kubeadm_join.tftpl", {
     token             = module.kubeadm_token.token
-    control_plane_url = "${module.control_plane.private_ip}:6443"
+    control_plane_url = "${local.private_ip_cp}:6443"
     pod_cidr          = local.pod_cidr
   })
   extra_userdata_cp = templatefile("${path.module}/templates/extra_userdata.tftpl", {
@@ -127,7 +128,7 @@ module "control_plane" {
   extra_userdata = local.extra_userdata_cp
 
   interface_private = {
-    ip_address = "${cidrhost(local.private_network_cidr, (local.ip_start_cp + 1))}/${local.private_network_prefix}"
+    ip_address = "${local.private_ip_cp}/${local.private_network_prefix}"
     network_id = nifcloud_private_lan.this.network_id
   }
 
@@ -160,8 +161,6 @@ module "worker" {
   depends_on = [
     nifcloud_security_group.wk,
     nifcloud_private_lan.this,
-    # Wait for kubectl init
-    module.control_plane,
   ]
 }
 

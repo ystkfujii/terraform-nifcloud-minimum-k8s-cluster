@@ -3,6 +3,19 @@ variable "availability_zone" {
   type        = string
 }
 
+variable "cni" {
+  description = "cni"
+  type        = string
+  default     = "containerd"
+  validation {
+    condition = anytrue([
+      var.cni == "containerd", // Monthly
+      var.cni == "cri-o",      // Pay per use
+    ])
+    error_message = "Must be containerd or cri-o."
+  }
+}
+
 variable "prefix" {
   description = "The prefix for the entire cluster"
   type        = string

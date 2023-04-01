@@ -1,7 +1,7 @@
 #####
 # Kubeadm join
 #
-cat > /tmp/kubeadm-join-config.yaml <<EOF
+cat <<EOF > /tmp/kubeadm-join-config.yaml
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: JoinConfiguration
 discovery:
@@ -11,4 +11,10 @@ discovery:
     apiServerEndpoint: "${control_plane_url}"
 EOF
 
-kubeadm join --config=/tmp/kubeadm-join-config.yaml
+# Wait for kubeadm init
+for i in $(seq 1 100)
+do
+  kubeadm join --config=/tmp/kubeadm-join-config.yaml
+  test $? -eq 0 && break
+  sleep 3
+done

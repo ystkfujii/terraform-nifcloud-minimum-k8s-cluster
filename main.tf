@@ -116,7 +116,7 @@ resource "nifcloud_private_lan" "this" {
 #
 module "control_plane" {
   source  = "ystkfujii/instance/nifcloud"
-  version = "0.0.4"
+  version = "0.0.6"
 
   availability_zone   = var.availability_zone
   instance_name       = "${local.az_short_name}${var.prefix}${local.role_control_plane}${format("%02d", 1)}"
@@ -140,7 +140,7 @@ module "control_plane" {
 
 module "worker" {
   source  = "ystkfujii/instance/nifcloud"
-  version = "0.0.4"
+  version = "0.0.6"
 
   count = var.instance_count_wk
 

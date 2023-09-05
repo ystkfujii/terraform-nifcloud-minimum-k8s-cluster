@@ -13,8 +13,3 @@ do
   test $? -eq 0 && break
   sleep 1
 done
-
-#####
-# cni
-#
-kubectl --kubeconfig=/root/.kube/config apply -f https://raw.githubusercontent.com/flannel-io/flannel/${v_flannel}/Documentation/kube-flannel.yml

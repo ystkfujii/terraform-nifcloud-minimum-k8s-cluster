@@ -24,12 +24,22 @@ locals {
   port_kubelet = 10250
   port_flannel = 8472
 
+  # Port used by cilium
+  #  see: https://docs.cilium.io/en/stable/operations/system_requirements/#firewall-rules
+  from_port_etcd = 2379
+  to_port_etcd   = 2380
+  port_vxlan     = 8472
+  port_hc        = 4240
+
   pod_cidr = "10.244.0.0/16"
 
   # version
   v_k8s       = "1.26.1-00"
   v_flannel   = "v0.21.2"
   v_cri_tools = "v1.26.0"
+
+  v_cilium_cli = "v0.15.7"
+  v_cilium     = "1.14.1"
 
   # containerd
   v_containerd  = "1.6.18"
@@ -59,10 +69,20 @@ locals {
   })
   install_cri = var.cri == "containerd" ? local.install_containerd : local.install_crio
 
-  kubeadm_init = templatefile("${path.module}/templates/kubeadm_init.tftpl", {
-    token     = module.kubeadm_token.token
-    pod_cidr  = local.pod_cidr
+  # cni
+  install_flannel = templatefile("${path.module}/templates/install_flannel.tftpl", {
     v_flannel = local.v_flannel
+  })
+  install_cilium = templatefile("${path.module}/templates/install_cilium.tftpl", {
+    cli_arch     = "amd64"
+    v_cilium     = local.v_cilium
+    v_cilium_cli = local.v_cilium_cli
+  })
+  install_cni = var.cni == "flannel" ? local.install_flannel : local.install_cilium
+
+  kubeadm_init = templatefile("${path.module}/templates/kubeadm_init.tftpl", {
+    token    = module.kubeadm_token.token
+    pod_cidr = local.pod_cidr
   })
   kubeadm_join = templatefile("${path.module}/templates/kubeadm_join.tftpl", {
     token             = module.kubeadm_token.token
@@ -73,11 +93,13 @@ locals {
     prepare_kubeadm = local.prepare_kubeadm
     install_cri     = local.install_cri
     kubeadm_action  = local.kubeadm_init
+    install_cni     = local.install_cni
   })
   extra_userdata_wk = templatefile("${path.module}/templates/extra_userdata.tftpl", {
     prepare_kubeadm = local.prepare_kubeadm
     install_cri     = local.install_cri
     kubeadm_action  = local.kubeadm_join
+    install_cni     = local.install_cni
   })
 }
 
@@ -215,6 +237,10 @@ resource "nifcloud_security_group_rule" "kubelet_from_control_plane" {
   source_security_group_name = nifcloud_security_group.cp.group_name
 }
 
+#
+# flannel
+#
+
 resource "nifcloud_security_group_rule" "flannel_from_worker" {
   security_group_names = [
     nifcloud_security_group.cp.group_name
@@ -236,3 +262,82 @@ resource "nifcloud_security_group_rule" "flannel_from_control_plane" {
   protocol                   = "UDP"
   source_security_group_name = nifcloud_security_group.cp.group_name
 }
+
+#
+# cilium
+#
+
+resource "nifcloud_security_group_rule" "etcd_from_worker" {
+  security_group_names = [
+    nifcloud_security_group.cp.group_name
+  ]
+  type                       = "IN"
+  from_port                  = local.from_port_etcd
+  to_port                    = local.to_port_etcd
+  protocol                   = "TCP"
+  source_security_group_name = nifcloud_security_group.wk.group_name
+}
+
+resource "nifcloud_security_group_rule" "vxlan_from_worker" {
+  security_group_names = [
+    nifcloud_security_group.cp.group_name
+  ]
+  type                       = "IN"
+  from_port                  = local.port_vxlan
+  to_port                    = local.port_vxlan
+  protocol                   = "UDP"
+  source_security_group_name = nifcloud_security_group.wk.group_name
+}
+
+resource "nifcloud_security_group_rule" "health_checks_from_worker" {
+  security_group_names = [
+    nifcloud_security_group.cp.group_name
+  ]
+  type                       = "IN"
+  from_port                  = local.port_hc
+  to_port                    = local.port_hc
+  protocol                   = "TCP"
+  source_security_group_name = nifcloud_security_group.wk.group_name
+}
+
+resource "nifcloud_security_group_rule" "icmp_from_worker" {
+  security_group_names = [
+    nifcloud_security_group.cp.group_name
+  ]
+  type                       = "IN"
+  protocol                   = "ICMP"
+  source_security_group_name = nifcloud_security_group.wk.group_name
+}
+
+resource "nifcloud_security_group_rule" "vxlan_from_control_plane" {
+  security_group_names = [
+    nifcloud_security_group.wk.group_name
+  ]
+  type                       = "IN"
+  from_port                  = local.port_vxlan
+  to_port                    = local.port_vxlan
+  protocol                   = "UDP"
+  source_security_group_name = nifcloud_security_group.cp.group_name
+}
+
+resource "nifcloud_security_group_rule" "health_checks_from_control_plane" {
+  security_group_names = [
+    nifcloud_security_group.wk.group_name
+  ]
+  type                       = "IN"
+  from_port                  = local.port_hc
+  to_port                    = local.port_hc
+  protocol                   = "UDP"
+  source_security_group_name = nifcloud_security_group.cp.group_name
+}
+
+resource "nifcloud_security_group_rule" "icmp_from_control_plane" {
+  security_group_names = [
+    nifcloud_security_group.wk.group_name
+  ]
+  type                       = "IN"
+  protocol                   = "ICMP"
+  source_security_group_name = nifcloud_security_group.cp.group_name
+}
+
+

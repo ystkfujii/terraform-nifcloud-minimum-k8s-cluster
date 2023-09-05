@@ -9,10 +9,23 @@ variable "cri" {
   default     = "containerd"
   validation {
     condition = anytrue([
-      var.cri == "containerd", // Monthly
-      var.cri == "cri-o",      // Pay per use
+      var.cri == "containerd",
+      var.cri == "cri-o",
     ])
     error_message = "Must be containerd or cri-o."
+  }
+}
+
+variable "cni" {
+  description = "cni"
+  type        = string
+  default     = "flannel"
+  validation {
+    condition = anytrue([
+      var.cni == "flannel",
+      var.cni == "cilium",
+    ])
+    error_message = "Must be flannel or cilium."
   }
 }
 

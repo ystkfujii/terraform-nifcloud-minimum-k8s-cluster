@@ -3,14 +3,14 @@ variable "availability_zone" {
   type        = string
 }
 
-variable "cni" {
-  description = "cni"
+variable "cri" {
+  description = "cri"
   type        = string
   default     = "containerd"
   validation {
     condition = anytrue([
-      var.cni == "containerd", // Monthly
-      var.cni == "cri-o",      // Pay per use
+      var.cri == "containerd", // Monthly
+      var.cri == "cri-o",      // Pay per use
     ])
     error_message = "Must be containerd or cri-o."
   }

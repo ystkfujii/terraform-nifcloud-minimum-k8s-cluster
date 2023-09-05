@@ -23,7 +23,7 @@ module "minimum_k8s_cluster" {
 
   availability_zone = local.availability_zone
   prefix            = "002"
-  cni               = "cri-o"
+  cri               = "cri-o"
 
   instance_key_name = var.instance_key_name
 

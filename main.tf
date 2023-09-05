@@ -45,7 +45,7 @@ locals {
     v_k8s = local.v_k8s
   })
 
-  # cni
+  # cri
   install_containerd = templatefile("${path.module}/templates/install_containerd.tftpl", {
     v_containerd  = local.v_containerd
     v_runc        = local.v_runc
@@ -57,7 +57,7 @@ locals {
     v_cri_tools = local.v_cri_tools
     os_image    = local.os_image
   })
-  install_cni = var.cni == "containerd" ? local.install_containerd : local.install_crio
+  install_cri = var.cri == "containerd" ? local.install_containerd : local.install_crio
 
   kubeadm_init = templatefile("${path.module}/templates/kubeadm_init.tftpl", {
     token     = module.kubeadm_token.token
@@ -71,12 +71,12 @@ locals {
   })
   extra_userdata_cp = templatefile("${path.module}/templates/extra_userdata.tftpl", {
     prepare_kubeadm = local.prepare_kubeadm
-    install_cni     = local.install_cni
+    install_cri     = local.install_cri
     kubeadm_action  = local.kubeadm_init
   })
   extra_userdata_wk = templatefile("${path.module}/templates/extra_userdata.tftpl", {
     prepare_kubeadm = local.prepare_kubeadm
-    install_cni     = local.install_cni
+    install_cri     = local.install_cri
     kubeadm_action  = local.kubeadm_join
   })
 }

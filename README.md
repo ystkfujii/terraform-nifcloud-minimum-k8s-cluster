@@ -48,7 +48,7 @@ Then perform the following commands on the root folder:
 | Name                   | Description                                                 | Type   | Default        |
 | ---------------------- | ----------------------------------------------------------- | ------ | -------------- |
 | availability_zone      | The availability zone                                       | string |                |
-| cni                    | cni                                                         | string | `containerd`   |
+| cri                    | cri                                                         | string | `containerd`   |
 | prefix                 | Prefix to include in the name of the resource to be created | string | `001`          |
 | private_network_subnet | The subnet of private network                               | string | `192.168.10.0` |
 | instance_key_name      | The key name of the Key Pair to use for the instance        | string |                |
